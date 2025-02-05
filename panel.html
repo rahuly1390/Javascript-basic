@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Panel with Child Forms</title>
+    <style>
+        .child-form {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .child-form input {
+            margin-bottom: 10px;
+            padding: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Parent Panel</h1>
+    <button id="addChildFormButton">Add New Child Form</button>
+    <div id="childFormsContainer"></div>
+
+    <script>
+        let childFormsData = []; // Array to store child form data
+        let currentId = 1; // Unique ID for each form
+
+        // Function to create a new child form
+        function createChildForm(id = null, data = {}) {
+            const childFormContainer = document.createElement('div');
+            childFormContainer.classList.add('child-form');
+            childFormContainer.setAttribute('data-id', id);
+
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.placeholder = 'Enter value';
+            inputField.value = data.value || ''; // Prepopulate if data exists
+
+            const saveButton = document.createElement('button');
+            saveButton.textContent = id ? 'Update' : 'Save';
+
+            saveButton.onclick = function () {
+                const formData = {
+                    id: id || currentId,
+                    value: inputField.value
+                };
+
+                // If it's an update, modify the existing object
+                if (id) {
+                    const index = childFormsData.findIndex(form => form.id === id);
+                    childFormsData[index] = formData;
+                } else {
+                    // Save new child form
+                    childFormsData.push(formData);
+                    currentId++;
+                }
+
+                console.log(childFormsData,'Form')
+                renderChildForms(); // Re-render the child forms after save
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = function () {
+                childFormsData = childFormsData.filter(form => form.id !== id);
+                renderChildForms(); // Re-render after delete
+            };
+
+            childFormContainer.appendChild(inputField);
+            childFormContainer.appendChild(saveButton);
+            childFormContainer.appendChild(deleteButton);
+
+            return childFormContainer;
+        }
+
+        // Function to render all child forms from the data array
+        function renderChildForms() {
+            const container = document.getElementById('childFormsContainer');
+            container.innerHTML = ''; // Clear previous forms
+
+            childFormsData.forEach((formData) => {
+                const childForm = createChildForm(formData.id, formData);
+                container.appendChild(childForm);
+            });
+        }
+
+        // Add event listener to the button to add new child form
+        document.getElementById('addChildFormButton').addEventListener('click', () => {
+            const newChildForm = createChildForm();
+            document.getElementById('childFormsContainer').appendChild(newChildForm);
+        });
+
+        // Initial render
+        renderChildForms();
+    </script>
+
+</body>
+</html>
+<!-- 
+Global Variables:
+
+childFormsData: An array to store all the child form data objects.
+currentId: A unique ID used to identify and differentiate each form.
+createChildForm():
+
+This function creates a new child form. It accepts two optional arguments: id (for editing an existing form) and data (for pre-filling form fields if it's an edit).
+It has an input field to capture data, a save button to store or update the form data, and a delete button to remove the form.
+The save button will either update the form's data in the array (if an id exists) or add a new entry.
+renderChildForms():
+
+This function iterates over the childFormsData array and dynamically creates and appends all child forms to the DOM.
+Button Listeners:
+
+The "Add New Child Form" button listens for a click to create and add a new form.
+The Save button either adds a new form or updates an existing form in the array.
+The Delete button removes a form from the array and re-renders the list. 
+Add New Form: Clicking "Add New Child Form" creates a new form and displays it.
+Save New Form: When you input data and click "Save", the form data is added to the childFormsData array, and the form is re-rendered with the new data.
+Edit Existing Form: If the form was previously saved, you can modify its content, and the "Update" button will update the data in the array based on the unique ID.
+Delete Form: Clicking "Delete" will remove the form from the array and re-render the list.
+-->
